@@ -20,9 +20,7 @@ public class AfterCardOrderTest {
     @BeforeEach
     void setup() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
+        options.addArguments("--disable-dev-shm-usage", "--no-sandbox", "--headless");
         driver = new ChromeDriver(options);
 
         driver.get("http://localhost:9999");
@@ -37,12 +35,25 @@ public class AfterCardOrderTest {
 
     @Test
     void shouldSendSuccessfulForm() {
-        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Иван Иванов-Петров");
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Иван Иванов");
         driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("+79991234567");
         driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
         driver.findElement(By.cssSelector("button")).click();
 
         String text = driver.findElement(By.cssSelector("[data-test-id='order-success']")).getText().trim();
         assertEquals("Ваша заявка успешно отправлена! Наш менеджер свяжется с вами в ближайшее время.", text);
+    }
+
+    @Test
+    void shouldShowErrorWhenPhoneIsInvalid() {
+
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Иван Иванов");
+        driver.findElement(By.cssSelector("[data-test-id='phone'] input")).sendKeys("7999123"); // Номер без плюса
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.className("button")).click();
+
+        String expected = "Телефон указан неверно. Должно быть 11 цифр, начиная с +7.";
+        String actual = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText().trim();
+        assertEquals(expected, actual);
     }
 }
