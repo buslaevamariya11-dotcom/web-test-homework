@@ -74,4 +74,18 @@ public class CardOrderValidationTest {
         String actual = driver.findElement(By.cssSelector("[data-test-id='name'].input_invalid .input__sub")).getText().trim();
         assertEquals(expected, actual);
     }
+
+    @Test
+    void shouldShowErrorWhenPhoneIsEmpty() {
+        driver.findElement(By.cssSelector("[data-test-id='name'] input")).sendKeys("Иван Иванов");
+        // Поле телефона оставляем пустым
+        driver.findElement(By.cssSelector("[data-test-id='agreement']")).click();
+        driver.findElement(By.className("button")).click();
+
+        // Проверяем, что под полем телефона появилась ошибка о пустом поле
+        String expected = "Поле обязательно для заполнения";
+        String actual = driver.findElement(By.cssSelector("[data-test-id='phone'].input_invalid .input__sub")).getText().trim();
+
+        assertEquals(expected, actual);
+    }
 }
